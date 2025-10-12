@@ -4,9 +4,11 @@
   "description": "Dynamically generate ServiceNow applications based on end user needs at runtime",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "node test.js",
+    "demo": "node demo.js",
+    "cli": "node cli.js",
     "lint": "eslint src/",
-    "start": "node src/index.js"
+    "start": "node demo.js"
   },
   "keywords": [
     "servicenow",
