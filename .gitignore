@@ -1,0 +1,16 @@
+node_modules/
+.env
+*.log
+.DS_Store
+coverage/
+dist/
+build/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.npm
+
+# Generated configuration files (except examples)
+x_*_config.json

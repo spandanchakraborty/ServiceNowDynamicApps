@@ -1,0 +1,141 @@
+{
+  "appName": "Customer Support System",
+  "appScope": "x_customer_support",
+  "description": "A comprehensive customer support application for handling customer inquiries and issues",
+  
+  "tables": [{
+    "name": "support_case",
+    "label": "Support Case",
+    "extends": "task",
+    "fields": [
+      {
+        "name": "customer_name",
+        "type": "string",
+        "label": "Customer Name",
+        "maxLength": 100,
+        "mandatory": true
+      },
+      {
+        "name": "customer_email",
+        "type": "email",
+        "label": "Customer Email",
+        "mandatory": true
+      },
+      {
+        "name": "case_type",
+        "type": "choice",
+        "label": "Case Type",
+        "mandatory": true,
+        "choices": [
+          { "value": "technical", "label": "Technical Issue" },
+          { "value": "billing", "label": "Billing Question" },
+          { "value": "general", "label": "General Inquiry" }
+        ]
+      },
+      {
+        "name": "severity",
+        "type": "choice",
+        "label": "Severity",
+        "mandatory": true,
+        "choices": [
+          { "value": "critical", "label": "Critical" },
+          { "value": "high", "label": "High" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "low", "label": "Low" }
+        ]
+      },
+      {
+        "name": "assigned_agent",
+        "type": "reference",
+        "label": "Assigned Agent",
+        "reference": "sys_user",
+        "mandatory": false
+      },
+      {
+        "name": "resolution",
+        "type": "string",
+        "label": "Resolution",
+        "maxLength": 4000,
+        "mandatory": false
+      }
+    ]
+  }],
+  
+  "forms": [{
+    "table": "x_customer_support_support_case",
+    "view": "default",
+    "sections": [
+      {
+        "name": "Customer Information",
+        "fields": ["number", "customer_name", "customer_email"]
+      },
+      {
+        "name": "Case Details",
+        "fields": ["case_type", "severity", "short_description", "description"]
+      },
+      {
+        "name": "Assignment and Resolution",
+        "fields": ["assigned_agent", "state", "priority", "resolution"]
+      }
+    ]
+  }],
+  
+  "businessRules": [{
+    "name": "Auto-assign Priority",
+    "table": "x_customer_support_support_case",
+    "when": "before",
+    "operation": ["insert", "update"],
+    "condition": "severity.changes()",
+    "script": "(function executeRule(current, previous) {\n  var severityToPriority = {\n    'critical': 1,\n    'high': 2,\n    'medium': 3,\n    'low': 4\n  };\n  current.priority = severityToPriority[current.severity.toString()] || 3;\n})(current, previous);"
+  }],
+  
+  "uiPolicies": [{
+    "name": "Require Resolution on Closure",
+    "table": "x_customer_support_support_case",
+    "onLoad": true,
+    "condition": "state=3",
+    "actions": [{
+      "field": "resolution",
+      "mandatory": true,
+      "visible": true,
+      "readOnly": false
+    }]
+  }],
+  
+  "roles": [
+    {
+      "name": "agent",
+      "description": "Support agent role",
+      "elevatePrivilege": false
+    },
+    {
+      "name": "manager",
+      "description": "Support manager role",
+      "elevatePrivilege": false
+    }
+  ],
+  
+  "menus": [
+    {
+      "name": "my_cases",
+      "title": "My Cases",
+      "table": "x_customer_support_support_case",
+      "type": "list",
+      "roles": ["x_customer_support.agent"]
+    },
+    {
+      "name": "all_cases",
+      "title": "All Cases",
+      "table": "x_customer_support_support_case",
+      "type": "list",
+      "roles": ["x_customer_support.manager"]
+    },
+    {
+      "name": "create_case",
+      "title": "Create New Case",
+      "table": "x_customer_support_support_case",
+      "type": "form",
+      "roles": ["x_customer_support.agent"]
+    }
+  ]
+}
